@@ -30,6 +30,11 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -118,7 +123,8 @@ fun AudioItem(
               //  .clickable { onItemClick() }
         ) {*/
             Row(
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier
+                    .padding(end = 8.dp)
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -214,6 +220,16 @@ fun BottomBarPlayer(
 ) {
     BottomAppBar (
         content = {
+
+            var position by remember {
+                mutableFloatStateOf(progress)
+            }
+
+            LaunchedEffect(key1 = progress) {
+                position = progress
+            }
+
+
             Column(
                 modifier = Modifier.padding(8.dp)
             ) {
@@ -236,7 +252,9 @@ fun BottomBarPlayer(
                     )
 
                     Slider(
-                        value = progress, onValueChange = { onProgress(it) },
+                        value = position, onValueChange = {
+                            onProgress(it)
+                            position = it                              },
                         valueRange = 0f..100f
                     )
                 }
@@ -341,13 +359,13 @@ fun PlayerIconItem(
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview()
 @Composable
 fun HomeScreenPrev() {
 
     KotlinProject1Theme {
         HomeScreen(
-            progress = 50f,
+            progress = 70f,
             onProgress = {},
             isAudioPlaying = true,
             audioList = listOf(

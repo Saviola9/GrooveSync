@@ -31,6 +31,10 @@ interface PlayerState {
 
     val player : Player
 
+    val currentPosition : Long
+
+    val duration : Long
+
     val timeline : Timeline
 
     val mediaItemIndex: Int
@@ -94,6 +98,13 @@ interface PlayerState {
 internal class PlayerStateImpl(
     override val player: Player
 ) : PlayerState {
+
+    override var duration: Long = 0L
+        get() = if(player.duration > 0) player.duration else 0L
+        private set
+    override var currentPosition: Long = 0L
+        get() = if (player.currentPosition > 0) player.currentPosition else 0L
+        private set
     override var timeline: Timeline by mutableStateOf(player.currentTimeline)
         private set
 
@@ -229,6 +240,7 @@ internal class PlayerStateImpl(
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
             this@PlayerStateImpl.isPlaying = isPlaying
+
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {

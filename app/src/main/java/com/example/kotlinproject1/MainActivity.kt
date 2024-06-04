@@ -3,7 +3,7 @@ package com.example.kotlinproject1
  import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
  import androidx.compose.material3.MaterialTheme
@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
  import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
  import androidx.compose.runtime.getValue
+ import androidx.compose.runtime.mutableFloatStateOf
  import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
  import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ import com.example.kotlinproject1.ui.screen.HomeScreen
  import com.example.kotlinproject1.ui.theme.KotlinProject1Theme
  import com.example.kotlinproject1.ui.utility.playMediaAt
  import dagger.hilt.android.AndroidEntryPoint
+ import kotlinx.coroutines.delay
 
 
 @AndroidEntryPoint
@@ -53,6 +55,7 @@ class MainActivity : ComponentActivity() {
 
 
                     val isPlayerSetUp by viewModel.isPlay.collectAsStateWithLifecycle()
+
 
                     val mediaController by rememberManagedMediaController()
 
@@ -87,15 +90,29 @@ class MainActivity : ComponentActivity() {
 
                     }
 
-                    val progress = 0.5f
+                    var progress by remember {
+                        mutableFloatStateOf(0f)
+                    }
+                    LaunchedEffect(key1 = mediaController?.isPlaying) {
+                        while(mediaController?.isPlaying == true){
+                                progress = mediaController?.currentPosition!!.toFloat() / mediaController?.duration!! * 100
+                            delay(200)
+                            }
+
+                    }
+                  //  var progress = playerState?.currentPosition!!.toFloat() / playerState?.duration!!
+
                     val musicList by viewModel.musicList.collectAsStateWithLifecycle()
 
                     HomeScreen(
                      //    progress = viewModel.progress,
+                      //  progress = playerState!!.duration.toFloat() / playerState!!.currentPosition,
                         progress = progress,
                         onProgress = {
                                      // viewModel.onUiEvents(UIEvents.SeekTo(it))
-
+                                    val position = it * playerState?.duration!! / 100
+                                     mediaController?.seekTo(position.toLong())
+                                     Log.d("SPOTIFY", "$it  ${playerState?.duration!!}  ${playerState?.currentPosition!!}   $position")
                                      },
                     //    isAudioPlaying = viewModel.isPlaying,
                         isAudioPlaying = (playerState?.isPlaying == true),
